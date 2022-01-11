@@ -1,3 +1,4 @@
+import kotlinx.coroutines.runBlocking
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Font
@@ -6,8 +7,6 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.io.IOException
 import javax.imageio.ImageIO
-import javax.swing.ImageIcon
-import javax.swing.JOptionPane
 import kotlin.system.exitProcess
 
 
@@ -16,17 +15,11 @@ const val numberOfRows = 10
 const val headerHeight = 20
 const val headerWidth = 20
 
-fun main() {
-    renderImage()
-}
+fun main() {}
 
-fun renderImage() {
-    val img = loadImage()
+fun renderImage(img: BufferedImage): BufferedImage {
     drawGrid(img)
-    val newImg = drawColumnNames(img)
-
-    val ii = ImageIcon(newImg)
-    JOptionPane.showMessageDialog(null, ii)
+    return drawHeaderNames(img)
 }
 
 fun loadImage(): BufferedImage {
@@ -75,7 +68,7 @@ fun drawGrid(img: BufferedImage) {
 
 }
 
-fun drawColumnNames(img: BufferedImage): BufferedImage {
+fun drawHeaderNames(img: BufferedImage): BufferedImage {
     val columnWidth = img.width / numberOfColumns
     val rowHeight = img.height / numberOfRows
 
