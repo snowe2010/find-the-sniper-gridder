@@ -59,6 +59,7 @@ data class ImgurData(
 @ApplicationScoped
 class ImgurApi(val secretsResolver: SecretsResolver) {
     suspend fun uploadPhoto(bufferedImage: BufferedImage): ImgurUrl {
+        val secrets = secretsResolver.resolveSecrets()
         val response: HttpResponse = HttpClient(CIO) {
             install(JsonFeature) {
                 serializer = Serialization.ktorSerializer
@@ -74,7 +75,7 @@ class ImgurApi(val secretsResolver: SecretsResolver) {
             }
 //            client.submitFormWithBinaryData<>()
             client.submitFormWithBinaryData("https://api.imgur.com/3/upload", parts) {
-                header("Authorization", "Client-ID $imgurClientId")
+                header("Authorization", "Client-ID ${secrets.imgurClientId}")
             }
         }
         val json = response.readText()

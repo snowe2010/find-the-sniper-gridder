@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.serialization") version "1.6.10"
+    kotlin("plugin.allopen") version "1.6.10"
 //    id("io.quarkus")
     id("io.quarkus") version "2.6.2.Final"
     java
@@ -22,16 +23,21 @@ val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
 
 dependencies {
+    implementation(kotlin("stdlib"))
+    
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:quarkus-amazon-services-bom:${quarkusPlatformVersion}"))
-    implementation("io.quarkiverse.amazonservices:quarkus-amazon-secretsmanager")
-    implementation("io.quarkus:quarkus-arc")
-    implementation("io.quarkus:quarkus-resteasy")
+    implementation("io.quarkus:quarkus-amazon-lambda")
     implementation("io.quarkus:quarkus-kotlin")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("io.quarkus:quarkus-arc")
+//    implementation("io.quarkus:quarkus-resteasy")
+    testImplementation("io.quarkus:quarkus-junit5")
+    testImplementation("io.rest-assured:rest-assured")
+    implementation("io.quarkiverse.amazonservices:quarkus-amazon-secretsmanager")
     
-    implementation(kotlin("stdlib"))
-    implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor:$ktor_version")
+    implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
     implementation("io.ktor:ktor-auth:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
@@ -52,6 +58,7 @@ dependencies {
     implementation("software.amazon.awscdk:codedeploy:${cdk_version}")
     implementation("software.amazon.awssdk:secretsmanager")
     implementation("com.amazonaws:aws-java-sdk-secretsmanager:1.12.136")
+    implementation("software.amazon.awssdk:url-connection-client")
 }
 
 tasks.quarkusBuild {
@@ -63,11 +70,24 @@ tasks.quarkusBuild {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
     kotlinOptions.javaParameters = true
+}
+tasks.register<JavaExec>("cdk") {
+    main = "com.tylerthrailkill.helpers.FindTheSniperApp"
+    classpath = sourceSets.main.get().runtimeClasspath
+}
+//task runTwaService(type: JavaExec) {
+//    main = 'com.service.main.TWAService'
+//    classpath = sourceSets.main.runtimeClasspath
+//}
+allOpen {
+    annotation("javax.ws.rs.Path")
+    annotation("javax.enterprise.context.ApplicationScoped")
+    annotation("io.quarkus.test.junit.QuarkusTest")
 }

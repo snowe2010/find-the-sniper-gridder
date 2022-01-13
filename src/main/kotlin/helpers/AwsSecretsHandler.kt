@@ -9,7 +9,7 @@ import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Singleton
-import javax.ws.rs.Produces
+//import javax.ws.rs.Produces
 
 
 @Serializable
@@ -27,7 +27,7 @@ class SecretsResolver(
     val secretsManagerClient: SecretsManagerClient,
 ) {
     @Singleton // data class and @ApplicationScoped do not play nice
-    @Produces
+//    @Produces
     fun resolveSecrets(
         @ConfigProperty(
             name = "secret.id",

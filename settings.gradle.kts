@@ -10,5 +10,5 @@ pluginManagement {
 //        id(quarkusPluginId) version quarkusPluginVersion
 //    }
 }
-rootProject.name = "find-the-sniper-gridder"
+rootProject.name = "find-the-sniper-helper"
 
