@@ -52,14 +52,14 @@ class RedditApi(val secretsResolver: SecretsResolver) {
             }.use { client ->
                 client.post("https://www.reddit.com/api/v1/access_token/") {
                     this.parameter("grant_type", "password")
-                    this.parameter("username", secrets.username)
-                    this.parameter("password", secrets.password)
+                    this.parameter("username", secrets.redditUsername)
+                    this.parameter("password", secrets.redditPassword)
                 }
             }
             val json = response.readText()
             println("password grant access token is")
             println(json)
-            val (accessToken, _, _, _) = Json.decodeFromString<RedditAuthorizationResponse>(json)
+            val (accessToken, _, _, _) = Json.decodeFromString(RedditAuthorizationResponse.serializer(), json)
             accessToken
         }
     }
@@ -76,7 +76,7 @@ class RedditApi(val secretsResolver: SecretsResolver) {
             }
         }
         val json = response.readText()
-        return Serialization.json.decodeFromString(json)
+        return Serialization.json.decodeFromString(Listing.serializer(), json)
     }
 
     suspend fun downloadImage(imageUrl: String): BufferedImage {

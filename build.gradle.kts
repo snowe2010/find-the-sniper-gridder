@@ -24,18 +24,21 @@ val quarkusPlatformVersion: String by project
 
 dependencies {
     implementation(kotlin("stdlib"))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     
+    // Quarkus
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:quarkus-amazon-services-bom:${quarkusPlatformVersion}"))
     implementation("io.quarkus:quarkus-amazon-lambda")
     implementation("io.quarkus:quarkus-kotlin")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.quarkus:quarkus-arc")
+    implementation("io.quarkus:quarkus-awt")
 //    implementation("io.quarkus:quarkus-resteasy")
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-secretsmanager")
     
+    // Ktor
     implementation("io.ktor:ktor:$ktor_version")
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
@@ -49,16 +52,21 @@ dependencies {
     implementation("io.ktor:ktor-client-serialization:$ktor_version")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
 
-
+    // AWS CDK
     implementation("software.amazon.awscdk:apigateway:${cdk_version}")
     implementation("software.amazon.awscdk:core:${cdk_version}")
     implementation("software.amazon.awscdk:s3:${cdk_version}")
     implementation("software.amazon.awscdk:lambda:${cdk_version}")
     implementation("software.amazon.awscdk:ssm:${cdk_version}")
     implementation("software.amazon.awscdk:codedeploy:${cdk_version}")
+    implementation("software.amazon.awscdk:dynamodb:${cdk_version}")
+
+    // aws sdk
     implementation("software.amazon.awssdk:secretsmanager")
-    implementation("com.amazonaws:aws-java-sdk-secretsmanager:1.12.136")
+    implementation("com.amazonaws:aws-java-sdk-secretsmanager:1.12.138")
     implementation("software.amazon.awssdk:url-connection-client")
+    implementation("software.amazon.awssdk:dynamodb")
+    implementation("software.amazon.awssdk:dynamodb-enhanced")
 }
 
 tasks.quarkusBuild {

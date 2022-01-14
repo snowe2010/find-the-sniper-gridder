@@ -81,7 +81,7 @@ class ImgurApi(val secretsResolver: SecretsResolver) {
         val json = response.readText()
         println("uploading to imgur")
         println(json)
-        val imgurResponse = Serialization.json.decodeFromString<ImgurResponse>(json)
+        val imgurResponse = Serialization.json.decodeFromString(ImgurResponse.serializer(), json)
         return imgurResponse.data.link
     }
 }

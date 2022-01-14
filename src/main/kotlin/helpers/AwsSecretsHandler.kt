@@ -19,8 +19,8 @@ data class Secrets(
     var imgurClientSecred: String = "secretWasNotSet",
     var redditClientId: String = "secretWasNotSet",
     var redditClientSecret: String = "secretWasNotSet",
-    var username: String = "secretWasNotSet",
-    var password: String = "secretWasNotSet",
+    var redditUsername: String = "secretWasNotSet",
+    var redditPassword: String = "secretWasNotSet",
 )
 
 @ApplicationScoped
