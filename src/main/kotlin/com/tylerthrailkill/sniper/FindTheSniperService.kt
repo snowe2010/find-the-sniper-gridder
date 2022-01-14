@@ -27,19 +27,23 @@ class FindTheSniperService(
                 if (post.postHint == "image") {
                     logger.info { "Post URL: ${post.url}" }
                     val image = redditApi.downloadImage(post.url)
-                    val griddedImage = imageProcessor.renderImage(image, GridSize.Big)
-                    val ii = ImageIcon(griddedImage)
-                    JOptionPane.showMessageDialog(null, ii)
+                    val bigImage = imageProcessor.renderImage(image, GridSize.Big)
+//                    val ii = ImageIcon(bigImage)
+//                    JOptionPane.showMessageDialog(null, ii)
                     
-                    val mediumGriddedImage = imageProcessor.renderImage(image, GridSize.Medium)
-                    val mi = ImageIcon(mediumGriddedImage)
-                    JOptionPane.showMessageDialog(null, mi)
+                    val mediumImage = imageProcessor.renderImage(image, GridSize.Medium)
+//                    val mi = ImageIcon(mediumGriddedImage)
+//                    JOptionPane.showMessageDialog(null, mi)
                     
-                    val small = imageProcessor.renderImage(image, GridSize.Small)
-                    val si = ImageIcon(small)
-                    JOptionPane.showMessageDialog(null, si)
-//                    val imageUrl = imgurApi.uploadPhoto(griddedImage)
-//                    redditApi.commentWithNewPhoto(post.name, imageUrl)
+                    val smallImage = imageProcessor.renderImage(image, GridSize.Small)
+//                    val si = ImageIcon(small)
+//                    JOptionPane.showMessageDialog(null, si)
+                    
+                    val bigImageUrl = imgurApi.uploadPhoto(bigImage)
+                    val mediumImageUrl = imgurApi.uploadPhoto(mediumImage)
+                    val smallImageUrl = imgurApi.uploadPhoto(smallImage)
+                    
+                    redditApi.commentWithNewPhoto(post.name, bigImageUrl, mediumImageUrl, smallImageUrl)
                 }
             }
         }

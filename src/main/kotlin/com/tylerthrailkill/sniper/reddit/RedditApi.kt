@@ -96,7 +96,8 @@ class RedditApi(val secretsResolver: SecretsResolver) {
     thing_id: fullname of parent thing
     uh / X-Modhash header: a modhash
      */
-    suspend fun commentWithNewPhoto(postId: String, imageUrl: String) {
+    suspend fun commentWithNewPhoto(postId: String, vararg imageUrl: String) {
+        logger.info { "Commenting on $postId with image urls $imageUrl"}
         val response: HttpResponse = HttpClient(CIO) {
             install(JsonFeature) {
                 serializer = Serialization.ktorSerializer
@@ -110,9 +111,9 @@ class RedditApi(val secretsResolver: SecretsResolver) {
                 parameter("return_rtjson", true)
                 parameter(
                     "text", """
-                    should be an image here
-                    $imageUrl
-                """.trimIndent()
+                    should be several images here. 
+                    ${imageUrl.joinToString("\n")}
+                    """.trimIndent()
                 )
                 parameter("thing_id", postId)
             }

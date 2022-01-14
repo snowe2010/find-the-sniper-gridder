@@ -23,7 +23,7 @@ class ImageProcessor {
     fun renderImage(img: BufferedImage, gridSize: GridSize): BufferedImage {
         val columnWidth = findClosestWholeNumberPixel(img.width, gridSize.desiredCellSize)
         val rowHeight = findClosestWholeNumberPixel(img.height, gridSize.desiredCellSize)
-        
+
         val image = deepCopyImage(img)
         drawGrid(image, columnWidth, rowHeight)
         return drawHeaderNames(image, columnWidth, rowHeight)
@@ -50,14 +50,41 @@ class ImageProcessor {
         val g2d: Graphics2D = img.createGraphics()
         g2d.background = Color.WHITE
         g2d.color = Color.BLACK
-        val bs = BasicStroke(2f)
+        val bs = BasicStroke(1f)
         g2d.stroke = bs
 
-        for (i in 0..numberOfColumns) {
-            g2d.drawLine(columnWidth * i, 0, columnWidth * i, height - 1)
+        0.until(numberOfColumns).forEach {
+            if (it.mod(2) == 0) {
+                g2d.color = Color.DARK_GRAY
+            } else {
+                g2d.color = Color(0, 255, 255, 90)
+            }
+            g2d.drawLine(columnWidth * it - 2, 0, columnWidth * it - 2, height - 1)
+            g2d.drawLine(columnWidth * it + 2, 0, columnWidth * it + 2, height - 1)
+
+
+            if (it.mod(2) == 0) {
+                g2d.color = Color.LIGHT_GRAY
+            } else {
+                g2d.color = Color(60, 160, 30, 140)
+            }
+            g2d.drawLine(columnWidth * it, 0, columnWidth * it, height - 1)
         }
-        for (i in 0..numberOfRows) {
-            g2d.drawLine(0, rowHeight * i, width - 1, rowHeight * i)
+        0.until(numberOfRows).forEach {
+            if (it.mod(2) == 0) {
+                g2d.color = Color.DARK_GRAY
+            } else {
+                g2d.color = Color(0, 255, 255, 90)
+            }
+            g2d.drawLine(0, rowHeight * it - 2, width - 1, rowHeight * it - 2)
+            g2d.drawLine(0, rowHeight * it + 2, width - 1, rowHeight * it + 2)
+
+            if (it.mod(2) == 0) {
+                g2d.color = Color.LIGHT_GRAY
+            } else {
+                g2d.color = Color(60, 160, 30, 140)
+            }
+            g2d.drawLine(0, rowHeight * it, width - 1, rowHeight * it)
         }
     }
 
