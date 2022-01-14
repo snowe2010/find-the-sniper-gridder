@@ -1,6 +1,5 @@
 package helpers
 
-import Serialization
 import kotlinx.serialization.Serializable
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.slf4j.Logger

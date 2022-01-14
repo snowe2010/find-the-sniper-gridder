@@ -1,4 +1,5 @@
 import helpers.SecretsResolver
+import helpers.Serialization
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -8,7 +9,6 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import javax.enterprise.context.ApplicationScoped
