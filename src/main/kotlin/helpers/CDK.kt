@@ -5,9 +5,14 @@ import org.slf4j.LoggerFactory
 import software.amazon.awscdk.core.App
 import software.amazon.awscdk.core.Construct
 import software.amazon.awscdk.core.Duration
+import software.amazon.awscdk.core.RemovalPolicy
+import software.amazon.awscdk.services.dynamodb.Attribute
+import software.amazon.awscdk.services.dynamodb.AttributeType
+import software.amazon.awscdk.services.dynamodb.BillingMode
+import software.amazon.awscdk.services.dynamodb.Table
 import software.amazon.awscdk.services.lambda.Code
-import software.amazon.awscdk.services.lambda.FunctionProps
 import software.amazon.awscdk.services.lambda.Function
+import software.amazon.awscdk.services.lambda.FunctionProps
 import software.amazon.awscdk.services.lambda.Runtime.PROVIDED
 
 
@@ -28,9 +33,8 @@ class FindTheSniperApp {
 class FindTheSniperCdk(
     scope: Construct,
 ) : software.amazon.awscdk.core.Stack(scope, appName, null) {
-    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
-
     init {
+        createDynamoDbTable()
         buildFunction()
     }
 
@@ -40,7 +44,6 @@ class FindTheSniperCdk(
             this.runtime(PROVIDED)
             this.handler("not.used.by.quarkus.in.native.mode")
             this.code(Code.fromAsset("target/function.zip"))
-//            this.tracing(Tracing.ACTIVE)
             this.timeout(Duration.seconds(30))
             this.memorySize(256)
             this.functionName(functionName)
@@ -53,8 +56,19 @@ class FindTheSniperCdk(
         })
         return function
     }
-}
 
+    private fun createDynamoDbTable(): Table {
+        val tableName = "RedditParsedPosts"
+        return Table.Builder
+            .create(this, tableName)
+            .removalPolicy(RemovalPolicy.RETAIN)
+            .tableName("${appName}-$tableName")
+            .billingMode(BillingMode.PAY_PER_REQUEST)
+            .partitionKey(Attribute.builder().name("id").type(AttributeType.STRING).build())
+            .timeToLiveAttribute("ttl")
+            .build()
+    }
+}
 
 
 /**
