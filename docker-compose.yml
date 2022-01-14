@@ -1,0 +1,21 @@
+version: '2.1'
+
+services:
+  localstack:
+    image: localstack/localstack:latest
+    container_name: awslocal
+    hostname: localstack
+    ports:
+      - "4566:4566"
+      - "${PORT_WEB_UI-8089}:${PORT_WEB_UI-8089}"
+    environment:
+      - SERVICES=sqs,sns,ssm,secretsmanager
+      - DEBUG=1
+      - DATA_DIR=
+      - PORT_WEB_UI=${PORT_WEB_UI- }
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOSTNAME_EXTERNAL=localstack
+      - HOST_TMP_FOLDER=${TMPDIR}
+    volumes:
+      - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"

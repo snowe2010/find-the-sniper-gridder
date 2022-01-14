@@ -4,15 +4,15 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Named
 
-data class Test(val str: String)
+class Test
 
 @Named("LambdaHandler")
 class LambdaHandler @Inject constructor(
     val redditApi: RedditApi,
     val imgurApi: ImgurApi,
-) : RequestHandler<Unit, Unit> {
+) : RequestHandler<Unit, Test> {
 
-    override fun handleRequest(request: Unit, context: Context?): Unit {
+    override fun handleRequest(request: Unit, context: Context?): Test {
         runBlocking {
             val listing = redditApi.getLatestPosts()
             val posts = listing.data.children
@@ -27,6 +27,6 @@ class LambdaHandler @Inject constructor(
                 }
             }
         }
-//        return Test("")
+        return Test() // have to return object to avoid weird serialization error...
     }
 }

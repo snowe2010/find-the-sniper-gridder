@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Singleton
+
 //import javax.ws.rs.Produces
 
 
@@ -36,7 +37,13 @@ class SecretsResolver(
     ): Secrets {
         return try {
             val response =
-                secretsManagerClient.getSecretValue(GetSecretValueRequest.builder().secretId(secretId).build())
+                secretsManagerClient.getSecretValue(
+                    GetSecretValueRequest
+                        .builder()
+                        .versionStage("AWSCURRENT")
+                        .secretId(secretId)
+                        .build()
+                )
             val secrets = Serialization.json.decodeFromString(Secrets.serializer(), response.secretString())
             logger.info("Secrets have been resolved for secretId: $secretId")
             secrets
