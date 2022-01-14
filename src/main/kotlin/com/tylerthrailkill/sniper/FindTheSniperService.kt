@@ -2,6 +2,7 @@ package com.tylerthrailkill.sniper
 
 import ImgurApi
 import RedditApi
+import com.tylerthrailkill.sniper.processing.GridSize
 import com.tylerthrailkill.sniper.processing.ImageProcessor
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -26,10 +27,17 @@ class FindTheSniperService(
                 if (post.postHint == "image") {
                     logger.info { "Post URL: ${post.url}" }
                     val image = redditApi.downloadImage(post.url)
-                    val griddedImage = imageProcessor.renderImage(image)
-
+                    val griddedImage = imageProcessor.renderImage(image, GridSize.Big)
                     val ii = ImageIcon(griddedImage)
                     JOptionPane.showMessageDialog(null, ii)
+                    
+                    val mediumGriddedImage = imageProcessor.renderImage(image, GridSize.Medium)
+                    val mi = ImageIcon(mediumGriddedImage)
+                    JOptionPane.showMessageDialog(null, mi)
+                    
+                    val small = imageProcessor.renderImage(image, GridSize.Small)
+                    val si = ImageIcon(small)
+                    JOptionPane.showMessageDialog(null, si)
 //                    val imageUrl = imgurApi.uploadPhoto(griddedImage)
 //                    redditApi.commentWithNewPhoto(post.name, imageUrl)
                 }

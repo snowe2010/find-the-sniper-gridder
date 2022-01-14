@@ -1,10 +1,9 @@
 package com.tylerthrailkill.sniper.processing
 
 import mu.KotlinLogging
-import java.awt.BasicStroke
-import java.awt.Color
-import java.awt.Font
-import java.awt.Graphics2D
+import java.awt.*
+import java.awt.font.TextAttribute
+import java.awt.geom.Rectangle2D
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.IOException
@@ -12,19 +11,22 @@ import javax.enterprise.context.ApplicationScoped
 import javax.imageio.ImageIO
 import kotlin.system.exitProcess
 
+
 private val logger = KotlinLogging.logger {}
+
+enum class GridSize(val desiredCellSize: Int) {
+    Big(108), Medium(70), Small(40)
+}
 
 @ApplicationScoped
 class ImageProcessor {
-    private val headerHeight = 20
-    private val headerWidth = 20
-
-    fun renderImage(img: BufferedImage): BufferedImage {
-        val columnWidth = findClosestWholeNumberPixel(img.width, 108)
-        val rowHeight = findClosestWholeNumberPixel(img.height, 108)
-        drawGrid(img, columnWidth, rowHeight)
-        drawHeaders(img, columnWidth, rowHeight)
-        return drawHeaderNames(img, columnWidth, rowHeight)
+    fun renderImage(img: BufferedImage, gridSize: GridSize): BufferedImage {
+        val columnWidth = findClosestWholeNumberPixel(img.width, gridSize.desiredCellSize)
+        val rowHeight = findClosestWholeNumberPixel(img.height, gridSize.desiredCellSize)
+        
+        val image = deepCopyImage(img)
+        drawGrid(image, columnWidth, rowHeight)
+        return drawHeaderNames(image, columnWidth, rowHeight)
     }
 
     fun loadImage(): BufferedImage {
@@ -38,10 +40,6 @@ class ImageProcessor {
         return img
     }
 
-    fun drawHeaders(img: BufferedImage, columnWidth: Int, rowHeight: Int) {
-        logger.info { "header width $headerWidth" }
-
-    }
 
     fun drawGrid(img: BufferedImage, columnWidth: Int, rowHeight: Int) {
         val width = img.width
@@ -66,23 +64,29 @@ class ImageProcessor {
     fun drawHeaderNames(img: BufferedImage, columnWidth: Int, rowHeight: Int): BufferedImage {
         val numberOfColumns = img.width / columnWidth
         val numberOfRows = img.height / rowHeight
+        val font = Font.decode("Dialog")
+        val (fontWidth, fontHeight) = deriveHeaderSizesFromFont(img, font, columnWidth)
 
-        val imgWithHeaders = BufferedImage(img.width + headerWidth, img.height + headerHeight, img.type)
+        val columnHeaderHeight = fontHeight.toInt() + 10
+        val rowHeaderWidth = fontWidth.toInt() + 10
+
+        val imgWithHeaders = BufferedImage(img.width + rowHeaderWidth, img.height + columnHeaderHeight, img.type)
 
         val g2d: Graphics2D = imgWithHeaders.createGraphics()
         g2d.color = Color.WHITE
-        g2d.font = Font("Dialog", Font.PLAIN, 20)
-        g2d.drawImage(img, headerWidth, headerHeight, null)
+        g2d.drawImage(img, rowHeaderWidth, columnHeaderHeight, null)
 
         0.until(numberOfColumns).forEach {
-            g2d.drawString("$it", headerWidth + (it * columnWidth) + (columnWidth / 2), headerHeight)
+            val rect = Rectangle(rowHeaderWidth + (it * columnWidth), 0, columnWidth, columnHeaderHeight)
+            drawCenteredString(g2d, "$it", rect, font.deriveFont(fontWidth))
         }
-        (0..numberOfRows).forEach {
-            g2d.drawString("$it", 0, headerHeight + (it * rowHeight) + (rowHeight / 2))
+        0.until(numberOfRows).forEach {
+            val rect = Rectangle(0, columnHeaderHeight + (it * rowHeight), rowHeaderWidth, rowHeight)
+            drawCenteredString(g2d, "$it", rect, font.deriveFont(fontWidth))
         }
         return imgWithHeaders
     }
-    
+
     fun findClosestWholeNumberPixel(totalPixels: Int, desiredSize: Int): Int {
         var size = desiredSize
         var modifier = 1
@@ -100,4 +104,58 @@ class ImageProcessor {
         }
         return size.also { logger.info { "found ideal size of $it" } }
     }
+
+    private fun deepCopyImage(bi: BufferedImage): BufferedImage {
+        val cm = bi.colorModel
+        val isAlphaPremultiplied = cm.isAlphaPremultiplied
+        val raster = bi.copyData(bi.raster.createCompatibleWritableRaster())
+        return BufferedImage(cm, raster, isAlphaPremultiplied, null)
+    }
+
+    /**
+     * Draw a String centered in the middle of a Rectangle.
+     *
+     * @param g The Graphics instance.
+     * @param text The String to draw.
+     * @param rect The Rectangle to center the text in.
+     */
+    fun drawCenteredString(g: Graphics, text: String, rect: Rectangle, font: Font?) {
+        // Get the FontMetrics
+        val metrics = g.getFontMetrics(font)
+        // Determine the X coordinate for the text
+        val x = rect.x + (rect.width - metrics.stringWidth(text)) / 2
+        // Determine the Y coordinate for the text (note we add the ascent, as in java 2d 0 is top of the screen)
+        val y = rect.y + (rect.height - metrics.height) / 2 + metrics.ascent
+        // Set the font
+        g.font = font
+        // Draw the String
+        g.drawString(text, x, y)
+    }
+
+    fun deriveHeaderSizesFromFont(img: BufferedImage, font: Font, columnWidth: Int): Pair<Float, Float> {
+        val fontGraphics = img.createGraphics()
+        fontGraphics.setRenderingHint(
+            RenderingHints.KEY_FRACTIONALMETRICS,
+            RenderingHints.VALUE_FRACTIONALMETRICS_ON
+        )
+        fontGraphics.setRenderingHint(
+            RenderingHints.KEY_TEXT_ANTIALIASING,
+            RenderingHints.VALUE_TEXT_ANTIALIAS_ON
+        )
+
+        val atts: MutableMap<TextAttribute, Any> = HashMap()
+        atts[TextAttribute.KERNING] = TextAttribute.KERNING_ON
+
+
+        val text = "10"
+        val r2d: Rectangle2D = fontGraphics.getFontMetrics(font).getStringBounds(text, fontGraphics)
+        logger.info { "r2d width ${r2d.width}" }
+
+        val fontWidth = (font.size2D * (columnWidth / 3) / r2d.width).toFloat()
+        val fontHeight = (font.size2D * (columnWidth / 3) / r2d.height).toFloat()
+        logger.info { "font width $fontWidth / font height $fontHeight" }
+
+        return fontWidth to fontHeight
+    }
+
 }
