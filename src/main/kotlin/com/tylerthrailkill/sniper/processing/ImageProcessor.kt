@@ -1,5 +1,6 @@
 package com.tylerthrailkill.sniper.processing
 
+import mu.KotlinLogging
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Font
@@ -11,16 +12,19 @@ import javax.enterprise.context.ApplicationScoped
 import javax.imageio.ImageIO
 import kotlin.system.exitProcess
 
+private val logger = KotlinLogging.logger {}
+
 @ApplicationScoped
 class ImageProcessor {
-    private val numberOfColumns = 10
-    private val numberOfRows = 10
     private val headerHeight = 20
     private val headerWidth = 20
 
     fun renderImage(img: BufferedImage): BufferedImage {
-        drawGrid(img)
-        return drawHeaderNames(img)
+        val columnWidth = findClosestWholeNumberPixel(img.width, 108)
+        val rowHeight = findClosestWholeNumberPixel(img.height, 108)
+        drawGrid(img, columnWidth, rowHeight)
+        drawHeaders(img, columnWidth, rowHeight)
+        return drawHeaderNames(img, columnWidth, rowHeight)
     }
 
     fun loadImage(): BufferedImage {
@@ -34,19 +38,16 @@ class ImageProcessor {
         return img
     }
 
-    fun drawGrid(img: BufferedImage) {
+    fun drawHeaders(img: BufferedImage, columnWidth: Int, rowHeight: Int) {
+        logger.info { "header width $headerWidth" }
+
+    }
+
+    fun drawGrid(img: BufferedImage, columnWidth: Int, rowHeight: Int) {
         val width = img.width
         val height = img.height
-
-        val columnWidth = width / numberOfColumns
-        val rowHeight = height / numberOfRows
-
-        val columnWidthNotExact = width.rem(numberOfColumns)
-        val rowHeightNotExact = height.rem(numberOfRows)
-
-        println("img loaded")
-        println("[height=$height] [width=$width]")
-        println("[columnWidth=$columnWidth] [rowHeight=$rowHeight]")
+        val numberOfColumns = width / columnWidth
+        val numberOfRows = height / rowHeight
 
         val g2d: Graphics2D = img.createGraphics()
         g2d.background = Color.WHITE
@@ -55,23 +56,16 @@ class ImageProcessor {
         g2d.stroke = bs
 
         for (i in 0..numberOfColumns) {
-            if (columnWidthNotExact != 0 && i == numberOfColumns) {
-                continue
-            }
             g2d.drawLine(columnWidth * i, 0, columnWidth * i, height - 1)
         }
         for (i in 0..numberOfRows) {
-            if (rowHeightNotExact != 0 && i == numberOfRows) {
-                continue
-            }
             g2d.drawLine(0, rowHeight * i, width - 1, rowHeight * i)
         }
-
     }
 
-    fun drawHeaderNames(img: BufferedImage): BufferedImage {
-        val columnWidth = img.width / numberOfColumns
-        val rowHeight = img.height / numberOfRows
+    fun drawHeaderNames(img: BufferedImage, columnWidth: Int, rowHeight: Int): BufferedImage {
+        val numberOfColumns = img.width / columnWidth
+        val numberOfRows = img.height / rowHeight
 
         val imgWithHeaders = BufferedImage(img.width + headerWidth, img.height + headerHeight, img.type)
 
@@ -80,40 +74,30 @@ class ImageProcessor {
         g2d.font = Font("Dialog", Font.PLAIN, 20)
         g2d.drawImage(img, headerWidth, headerHeight, null)
 
-        val topHeaders = listOf(
-            "A",
-            "B",
-            "C",
-            "D",
-            "E",
-            "F",
-            "G",
-            "H",
-            "I",
-            "J",
-            "K",
-            "L",
-            "M",
-            "N",
-            "O",
-            "P",
-            "Q",
-            "R",
-            "S",
-            "T",
-            "U",
-            "V",
-            "W",
-            "X",
-            "Y",
-            "Z"
-        )
-        topHeaders.forEachIndexed { index, it ->
-            g2d.drawString(it, headerWidth + (index * columnWidth) + (columnWidth / 2), headerHeight)
+        0.until(numberOfColumns).forEach {
+            g2d.drawString("$it", headerWidth + (it * columnWidth) + (columnWidth / 2), headerHeight)
         }
-        (0..numberOfRows).forEachIndexed { index, it ->
-            g2d.drawString("$it", 0, headerHeight + (index * rowHeight) + (rowHeight / 2))
+        (0..numberOfRows).forEach {
+            g2d.drawString("$it", 0, headerHeight + (it * rowHeight) + (rowHeight / 2))
         }
         return imgWithHeaders
+    }
+    
+    fun findClosestWholeNumberPixel(totalPixels: Int, desiredSize: Int): Int {
+        var size = desiredSize
+        var modifier = 1
+        var negative = false
+        while (totalPixels.mod(size) != 0) {
+            size += modifier
+            if (negative) {
+                modifier -= 1
+                negative = false
+            } else {
+                modifier += 1
+                negative = true
+            }
+            modifier *= -1
+        }
+        return size.also { logger.info { "found ideal size of $it" } }
     }
 }

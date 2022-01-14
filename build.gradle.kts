@@ -67,6 +67,8 @@ dependencies {
     implementation("software.amazon.awssdk:url-connection-client")
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
+
+    implementation("io.github.microutils:kotlin-logging-jvm:2.1.21")
 }
 
 tasks.quarkusBuild {

@@ -1,22 +1,24 @@
 import helpers.SecretsResolver
 import helpers.Serialization
 import io.ktor.client.*
-import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.auth.*
 import io.ktor.client.features.auth.providers.*
+import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import mu.KotlinLogging
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import javax.enterprise.context.ApplicationScoped
 import javax.imageio.ImageIO
 
+private val logger = KotlinLogging.logger {}
 
 const val subreddit: String = "snowe2010"
 
@@ -31,7 +33,7 @@ data class RedditAuthorizationResponse(
 @ApplicationScoped
 class RedditApi(val secretsResolver: SecretsResolver) {
     private val token: String by lazy { authorize() }
-    
+
     private fun authorize(): String {
         val secrets = secretsResolver.resolveSecrets()
         return runBlocking {
@@ -43,7 +45,10 @@ class RedditApi(val secretsResolver: SecretsResolver) {
                 install(Auth) {
                     basic {
                         credentials {
-                            BasicAuthCredentials(username = secrets.redditClientId, password = secrets.redditClientSecret)
+                            BasicAuthCredentials(
+                                username = secrets.redditClientId,
+                                password = secrets.redditClientSecret
+                            )
                         }
                     }
                 }
@@ -55,8 +60,6 @@ class RedditApi(val secretsResolver: SecretsResolver) {
                 }
             }
             val json = response.readText()
-            println("password grant access token is")
-            println(json)
             val (accessToken, _, _, _) = Json.decodeFromString(RedditAuthorizationResponse.serializer(), json)
             accessToken
         }
@@ -74,6 +77,7 @@ class RedditApi(val secretsResolver: SecretsResolver) {
             }
         }
         val json = response.readText()
+        logger.info { "Latest Posts: ${json}" }
         return Serialization.json.decodeFromString(Listing.serializer(), json)
     }
 
@@ -101,7 +105,7 @@ class RedditApi(val secretsResolver: SecretsResolver) {
             client.post("https://oauth.reddit.com/api/comment") {
                 header("User-Agent", "findthesniper-helper-0.0.1")
                 header("Authorization", "Bearer $token")
-                
+
                 parameter("api_type", "json")
                 parameter("return_rtjson", true)
                 parameter(
