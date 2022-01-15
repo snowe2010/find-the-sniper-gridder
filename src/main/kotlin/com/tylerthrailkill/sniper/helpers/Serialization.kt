@@ -1,4 +1,4 @@
-package helpers
+package com.tylerthrailkill.sniper.helpers
 
 import io.ktor.client.features.json.serializer.*
 import kotlinx.serialization.json.Json

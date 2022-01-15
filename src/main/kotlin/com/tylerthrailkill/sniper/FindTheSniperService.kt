@@ -7,8 +7,6 @@ import com.tylerthrailkill.sniper.processing.ImageProcessor
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import javax.enterprise.context.ApplicationScoped
-import javax.swing.ImageIcon
-import javax.swing.JOptionPane
 
 private val logger = KotlinLogging.logger {}
 
@@ -30,19 +28,19 @@ class FindTheSniperService(
                     val bigImage = imageProcessor.renderImage(image, GridSize.Big)
 //                    val ii = ImageIcon(bigImage)
 //                    JOptionPane.showMessageDialog(null, ii)
-                    
+
                     val mediumImage = imageProcessor.renderImage(image, GridSize.Medium)
 //                    val mi = ImageIcon(mediumGriddedImage)
 //                    JOptionPane.showMessageDialog(null, mi)
-                    
+
                     val smallImage = imageProcessor.renderImage(image, GridSize.Small)
 //                    val si = ImageIcon(small)
 //                    JOptionPane.showMessageDialog(null, si)
-                    
+
                     val bigImageUrl = imgurApi.uploadPhoto(bigImage)
                     val mediumImageUrl = imgurApi.uploadPhoto(mediumImage)
                     val smallImageUrl = imgurApi.uploadPhoto(smallImage)
-                    
+
                     redditApi.commentWithNewPhoto(post.name, bigImageUrl, mediumImageUrl, smallImageUrl)
                 }
             }

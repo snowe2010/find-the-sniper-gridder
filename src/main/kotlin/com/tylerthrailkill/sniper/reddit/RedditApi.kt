@@ -1,5 +1,6 @@
-import helpers.SecretsResolver
-import helpers.Serialization
+import com.tylerthrailkill.sniper.reddit.Listing
+import com.tylerthrailkill.sniper.helpers.SecretsResolver
+import com.tylerthrailkill.sniper.helpers.Serialization
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.auth.*
@@ -97,7 +98,7 @@ class RedditApi(val secretsResolver: SecretsResolver) {
     uh / X-Modhash header: a modhash
      */
     suspend fun commentWithNewPhoto(postId: String, vararg imageUrl: String) {
-        logger.info { "Commenting on $postId with image urls $imageUrl"}
+        logger.info { "Commenting on $postId with image urls $imageUrl" }
         val response: HttpResponse = HttpClient(CIO) {
             install(JsonFeature) {
                 serializer = Serialization.ktorSerializer

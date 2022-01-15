@@ -1,3 +1,5 @@
+package com.tylerthrailkill.sniper.reddit
+
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

@@ -9,7 +9,7 @@ services:
       - "4566:4566"
       - "${PORT_WEB_UI-8089}:${PORT_WEB_UI-8089}"
     environment:
-      - SERVICES=sqs,sns,ssm,secretsmanager
+      - SERVICES=sqs,sns,ssm,secretsmanager,dynamodb
       - DEBUG=1
       - DATA_DIR=
       - PORT_WEB_UI=${PORT_WEB_UI- }

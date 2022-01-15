@@ -1,4 +1,4 @@
-package helpers
+package com.tylerthrailkill.sniper.helpers
 
 import kotlinx.serialization.Serializable
 import org.eclipse.microprofile.config.inject.ConfigProperty

@@ -1,5 +1,5 @@
-import helpers.SecretsResolver
-import helpers.Serialization
+import com.tylerthrailkill.sniper.helpers.SecretsResolver
+import com.tylerthrailkill.sniper.helpers.Serialization
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*

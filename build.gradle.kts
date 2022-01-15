@@ -4,6 +4,7 @@ plugins {
     kotlin("plugin.allopen") version "1.6.10"
 //    id("io.quarkus")
     id("io.quarkus") version "2.6.2.Final"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
     java
 }
 
@@ -25,7 +26,7 @@ val quarkusPlatformVersion: String by project
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    
+
     // Quarkus
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:quarkus-amazon-services-bom:${quarkusPlatformVersion}"))
@@ -37,7 +38,7 @@ dependencies {
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
     implementation("io.quarkiverse.amazonservices:quarkus-amazon-secretsmanager")
-    
+
     // Ktor
     implementation("io.ktor:ktor:$ktor_version")
     implementation("io.ktor:ktor-client-core:$ktor_version")
@@ -67,6 +68,7 @@ dependencies {
     implementation("software.amazon.awssdk:url-connection-client")
     implementation("software.amazon.awssdk:dynamodb")
     implementation("software.amazon.awssdk:dynamodb-enhanced")
+    implementation("software.amazon.awssdk:netty-nio-client")
 
     implementation("io.github.microutils:kotlin-logging-jvm:2.1.21")
 }
@@ -88,14 +90,17 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
     kotlinOptions.javaParameters = true
 }
+
 tasks.register<JavaExec>("cdk") {
-    main = "com.tylerthrailkill.helpers.FindTheSniperApp"
+    main = "com.tylerthrailkill.sniper.helpers.FindTheSniperApp"
     classpath = sourceSets.main.get().runtimeClasspath
 }
+
 //task runTwaService(type: JavaExec) {
 //    main = 'com.service.main.TWAService'
 //    classpath = sourceSets.main.runtimeClasspath
 //}
+
 allOpen {
     annotation("javax.ws.rs.Path")
     annotation("javax.enterprise.context.ApplicationScoped")

@@ -1,11 +1,6 @@
-package helpers
+package com.tylerthrailkill.sniper.helpers
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import software.amazon.awscdk.core.App
-import software.amazon.awscdk.core.Construct
-import software.amazon.awscdk.core.Duration
-import software.amazon.awscdk.core.RemovalPolicy
+import software.amazon.awscdk.core.*
 import software.amazon.awscdk.services.dynamodb.Attribute
 import software.amazon.awscdk.services.dynamodb.AttributeType
 import software.amazon.awscdk.services.dynamodb.BillingMode
@@ -43,7 +38,7 @@ class FindTheSniperCdk(
         val function = function(functionName, functionProps {
             this.runtime(PROVIDED)
             this.handler("not.used.by.quarkus.in.native.mode")
-            this.code(Code.fromAsset("target/function.zip"))
+            this.code(Code.fromAsset("build/function.zip"))
             this.timeout(Duration.seconds(30))
             this.memorySize(256)
             this.functionName(functionName)
