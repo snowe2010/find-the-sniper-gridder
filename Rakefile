@@ -3,10 +3,11 @@ require 'json'
 task :setup do 
   puts "installing cdk"
   system "npm install aws-cdk"
+  system "npm install aws-cdk-local"
 end
 
 task :cdk_bootstrap do
-  secrets = JSON.parse(File.open(".secrets.json"))
+  secrets = load_secrets
   system "npx cdk bootstrap aws://#{secrets["awsAccountId"]}/us-west-1"
 end
 
@@ -34,12 +35,11 @@ task :localstack do
 end
 
 task add_secrets: [:localstack]  do
-  secrets = JSON.parse(File.open(".secrets.json"))
+  secrets = load_secrets
   system %Q(aws --endpoint-url=http://localhost:4566 secretsmanager create-secret --name findthesniper-secrets --secret-string '{"imgurClientId":"#{secrets["imgurClientId"]}","redditClientId":"#{secrets["redditClientId"]}","redditClientSecret":"#{secrets["redditClientSecret"]}","redditUsername":"#{secrets["redditUsername"]}","redditPassword":"#{secrets["redditPassword"]}"}')
   # system %Q(aws --endpoint-url=http://localhost:4566 secretsmanager update-secret --secret-id findthesniper-secrets --secret-string '{"imgurClientId":"#{secrets["imgurClientId"]}","redditClientId":"#{secrets["redditClientId"]}","redditClientSecret":"#{secrets["redditClientSecret"]}","redditUsername":"#{secrets["redditUsername"]}","redditPassword":"#{secrets["redditPassword"]}"}')
 end
 
-
-task :load_secrets do
-  puts JSON.parse(IO.read(".secrets.json"))
+def load_secrets
+  JSON.parse(File.open(".secrets.json"))
 end
