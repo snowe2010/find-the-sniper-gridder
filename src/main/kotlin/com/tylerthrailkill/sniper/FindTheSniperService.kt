@@ -2,6 +2,7 @@ package com.tylerthrailkill.sniper
 
 import ImgurApi
 import RedditApi
+import com.tylerthrailkill.sniper.aws.DynamoDbService
 import com.tylerthrailkill.sniper.processing.GridSize
 import com.tylerthrailkill.sniper.processing.ImageProcessor
 import kotlinx.coroutines.runBlocking
@@ -15,9 +16,11 @@ class FindTheSniperService(
     val redditApi: RedditApi,
     val imgurApi: ImgurApi,
     val imageProcessor: ImageProcessor,
+    val dynamo: DynamoDbService,
 ) {
     fun commentOnNewPosts() {
         runBlocking {
+            val all = dynamo.getAll()
             val listing = redditApi.getLatestPosts()
             val posts = listing.data.children
             posts.forEach {
@@ -42,6 +45,8 @@ class FindTheSniperService(
                     val smallImageUrl = imgurApi.uploadPhoto(smallImage)
 
                     redditApi.commentWithNewPhoto(post.name, bigImageUrl, mediumImageUrl, smallImageUrl)
+                    
+                    dynamo.save(it)
                 }
             }
         }

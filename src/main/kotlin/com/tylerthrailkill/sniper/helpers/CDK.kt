@@ -8,6 +8,7 @@ import software.amazon.awscdk.services.dynamodb.Table
 import software.amazon.awscdk.services.lambda.Code
 import software.amazon.awscdk.services.lambda.Function
 import software.amazon.awscdk.services.lambda.FunctionProps
+import software.amazon.awscdk.services.lambda.Permission
 import software.amazon.awscdk.services.lambda.Runtime.PROVIDED
 
 
@@ -45,10 +46,18 @@ class FindTheSniperCdk(
             environment(
                 mapOf(
                     "DISABLE_SIGNAL_HANDLERS" to "true",            // required by graal native
-                    "QUARKUS_LAMBDA_HANDLER" to "handler"  // https://quarkus.io/guides/amazon-lambda#choose
+//                    "QUARKUS_LAMBDA_HANDLER" to "handler"  // https://quarkus.io/guides/amazon-lambda#choose
                 )
             )
         })
+        val awsAccountId = System.getenv("AWS_ACCOUNT_ID") ?: "000000000000" // default to localstack
+        val secret = software.amazon.awscdk.services.secretsmanager.Secret.fromSecretCompleteArn(
+            this, " findthesniper-secrets",
+            "arn:aws:secretsmanager:us-west-1:$awsAccountId:secret:findthesniper-secrets-VHHBCq"
+        )
+        
+        secret.grantRead(function.role?.grantPrincipal!!)
+
         return function
     }
 

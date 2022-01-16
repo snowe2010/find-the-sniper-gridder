@@ -173,14 +173,11 @@ class ImageProcessor {
         val atts: MutableMap<TextAttribute, Any> = HashMap()
         atts[TextAttribute.KERNING] = TextAttribute.KERNING_ON
 
-
         val text = "10"
         val r2d: Rectangle2D = fontGraphics.getFontMetrics(font).getStringBounds(text, fontGraphics)
-        logger.info { "r2d width ${r2d.width}" }
 
         val fontWidth = (font.size2D * (columnWidth / 3) / r2d.width).toFloat()
         val fontHeight = (font.size2D * (columnWidth / 3) / r2d.height).toFloat()
-        logger.info { "font width $fontWidth / font height $fontHeight" }
 
         return fontWidth to fontHeight
     }

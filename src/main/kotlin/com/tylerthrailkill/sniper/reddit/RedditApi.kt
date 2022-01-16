@@ -22,6 +22,7 @@ import javax.imageio.ImageIO
 private val logger = KotlinLogging.logger {}
 
 const val subreddit: String = "snowe2010"
+const val userAgent = "web:com.tylerthrailkill.findthesniper-helper:0.0.1 (by /u/snowe2010)"
 
 @Serializable
 data class RedditAuthorizationResponse(
@@ -73,10 +74,11 @@ class RedditApi(val secretsResolver: SecretsResolver) {
             }
         }.use { client ->
             client.get("https://oauth.reddit.com/user/$subreddit/new.json?count=20") {
-                this.header("User-Agent", "findthesniper-helper-0.0.1")
+                this.header("User-Agent", userAgent)
                 this.header("Authorization", "Bearer $token")
             }
         }
+        logger.info { "getLatestPosts headers: ${response.headers}" }
         val json = response.readText()
         logger.info { "Latest Posts: ${json}" }
         return Serialization.json.decodeFromString(Listing.serializer(), json)
@@ -105,22 +107,24 @@ class RedditApi(val secretsResolver: SecretsResolver) {
             }
         }.use { client ->
             client.post("https://oauth.reddit.com/api/comment") {
-                header("User-Agent", "findthesniper-helper-0.0.1")
+                header("User-Agent", userAgent)
                 header("Authorization", "Bearer $token")
 
                 parameter("api_type", "json")
                 parameter("return_rtjson", true)
                 parameter(
                     "text", """
-                    should be several images here. 
-                    ${imageUrl.joinToString("\n")}
+                    # Find The Sniper Helper
+                    
+                    ${imageUrl.joinToString("\n                    ")}
                     """.trimIndent()
                 )
                 parameter("thing_id", postId)
             }
         }
+        logger.info { "commentWithNewPhoto headers: ${response.headers}" }
         val json = response.readText()
-        println(json)
+        logger.info {"commentWithNewPhoto response: $json"}
     }
 
 }

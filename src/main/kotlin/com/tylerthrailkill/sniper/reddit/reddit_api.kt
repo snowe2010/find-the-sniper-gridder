@@ -2,6 +2,9 @@ package com.tylerthrailkill.sniper.reddit
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey
 
 @Serializable
 data class Listing(
@@ -15,7 +18,10 @@ data class Data(
 )
 
 @Serializable
+@DynamoDbBean
 data class Child(
+    @get:DynamoDbAttribute("ttl")
+    val ttl: Long,
     val kind: String,
     val data: ChildData,
 )
