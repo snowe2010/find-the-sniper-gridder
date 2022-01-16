@@ -28,7 +28,13 @@ class FindTheSniperApp {
 
 class FindTheSniperCdk(
     scope: Construct,
-) : software.amazon.awscdk.core.Stack(scope, appName, null) {
+) : Stack(
+    scope, 
+    appName,
+    StackProps.builder().env(
+        Environment.builder().account(System.getenv("AWS_ACCOUNT_ID") ?: "000000000000").build()
+    ).build()
+) {
     init {
         createDynamoDbTable()
         buildFunction()

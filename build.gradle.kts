@@ -17,10 +17,6 @@ repositories {
     mavenCentral()
 }
 
-val ktor_version = "1.6.7"
-val cdk_version = "1.138.2"
-val sdk_version = "2.17.107"
-
 val quarkusPlatformGroupId: String by project
 val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
@@ -46,7 +42,6 @@ dependencies {
     implementation(quarkiverse("quarkus-amazon-secretsmanager"))
     implementation(quarkiverse("quarkus-amazon-dynamodb"))
     
-//    implementation("io.quarkus:quarkus-resteasy")
     testImplementation(quarkus("quarkus-junit5"))
     testImplementation("io.rest-assured:rest-assured")
 
@@ -83,9 +78,8 @@ dependencies {
     implementation(awsSdk("apache-client"))
     implementation("com.amazonaws:aws-java-sdk-secretsmanager:1.12.138")
 
+    // logging
     implementation("io.github.microutils:kotlin-logging-jvm:2.1.21")
-
-
     implementation("org.apache.logging.log4j:log4j-api:2.17.0")
     implementation("org.apache.logging.log4j:log4j-core:2.17.0")
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j18-impl:2.17.0")

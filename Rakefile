@@ -16,10 +16,8 @@ task :build do
 end
 
 task deploy: [:build] do
-  # if ENV['CI']
   puts "Deploying"
   system "npx cdk deploy"
-  # end
 end
 
 task :bootstrap_localstack do
@@ -32,14 +30,21 @@ end
 
 task :localstack do
   system %Q(docker-compose up -d)
+  sleep 10
 end
 
 task add_secrets: [:localstack]  do
   secrets = load_secrets
-  system %Q(aws --endpoint-url=http://localhost:4566 secretsmanager create-secret --name findthesniper-secrets --secret-string '{"imgurClientId":"#{secrets["imgurClientId"]}","redditClientId":"#{secrets["redditClientId"]}","redditClientSecret":"#{secrets["redditClientSecret"]}","redditUsername":"#{secrets["redditUsername"]}","redditPassword":"#{secrets["redditPassword"]}"}')
+  system %Q(awslocal secretsmanager create-secret --name findthesniper-secrets --secret-string '{"imgurClientId":"#{secrets["imgurClientId"]}","redditClientId":"#{secrets["redditClientId"]}","redditClientSecret":"#{secrets["redditClientSecret"]}","redditUsername":"#{secrets["redditUsername"]}","redditPassword":"#{secrets["redditPassword"]}"}')
   # system %Q(aws --endpoint-url=http://localhost:4566 secretsmanager update-secret --secret-id findthesniper-secrets --secret-string '{"imgurClientId":"#{secrets["imgurClientId"]}","redditClientId":"#{secrets["redditClientId"]}","redditClientSecret":"#{secrets["redditClientSecret"]}","redditUsername":"#{secrets["redditUsername"]}","redditPassword":"#{secrets["redditPassword"]}"}')
 end
 
+task setup_dynamo_db: [:localstack] do
+  system %Q(awslocal dynamodb create-table --table-name find-the-sniper-helper-RedditParsedPosts --attribute-definitions AttributeName=id,AttributeType=S AttributeName=ttl,AttributeType=N --key-schema AttributeName=id,KeyType=HASH AttributeName=ttl,KeyType=RANGE --provisioned-throughput ReadCapacityUnits=10,WriteCapacityUnits=5)
+end
+
+task start_localstack: [:setup_dynamo_db, :add_secrets, :localstack]
+
 def load_secrets
-  JSON.parse(File.open(".secrets.json"))
+  JSON.parse(IO.read(".secrets.json"))
 end
