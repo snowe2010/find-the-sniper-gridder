@@ -119,7 +119,7 @@ class RedditApi(val secretsResolver: SecretsResolver) {
                     "text", """
                     # Find The Sniper Helper
                     
-                    ${imageUrl.joinToString("\n                    ")}
+                    - ${imageUrl.joinToString("\n                    - ")}
                     """.trimIndent()
                 )
                 parameter("thing_id", postId)

@@ -53,7 +53,7 @@ class FindTheSniperCdk(
 
     private fun createCronEvent(function: Function): Rule {
         return Rule.Builder.create(this, "findthesniper")
-            .description("check reddit every 2 minutes")
+            .description("check reddit every 3 minutes")
             .schedule(Schedule.cron(CronOptions.builder().minute("*/3").build()))
             .build().also { it.addTarget(LambdaFunction(function)) }
     }
