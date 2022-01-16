@@ -21,9 +21,12 @@ class FindTheSniperService(
     fun commentOnNewPosts() {
         runBlocking {
             val all = dynamo.getAll()
+            logger.info { all }
             val listing = redditApi.getLatestPosts()
             val posts = listing.data.children
-            posts.forEach {
+            posts
+                .filterNot { all.contains(it.data.name) }
+                .forEach {
                 val post = it.data
                 if (post.postHint == "image") {
                     logger.info { "Post URL: ${post.url}" }

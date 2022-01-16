@@ -18,10 +18,10 @@ data class Data(
 )
 
 @Serializable
-@DynamoDbBean
+//@DynamoDbBean
 data class Child(
-    @get:DynamoDbAttribute("ttl")
-    val ttl: Long,
+//    @get:DynamoDbAttribute("ttl")
+//    val ttl: Long,
     val kind: String,
     val data: ChildData,
 )

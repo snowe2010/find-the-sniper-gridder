@@ -4,7 +4,7 @@ import io.ktor.client.features.json.serializer.*
 import kotlinx.serialization.json.Json
 
 object Serialization {
-    val json:Json by lazy {
+    val json: Json by lazy {
         Json {
             ignoreUnknownKeys = true
         }
@@ -12,5 +12,6 @@ object Serialization {
     val ktorSerializer = KotlinxSerializer(Json {
         prettyPrint = true
         isLenient = true
+        ignoreUnknownKeys = true
     })
 }

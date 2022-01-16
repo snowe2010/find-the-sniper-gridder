@@ -8,7 +8,6 @@ import software.amazon.awscdk.services.dynamodb.Table
 import software.amazon.awscdk.services.lambda.Code
 import software.amazon.awscdk.services.lambda.Function
 import software.amazon.awscdk.services.lambda.FunctionProps
-import software.amazon.awscdk.services.lambda.Permission
 import software.amazon.awscdk.services.lambda.Runtime.PROVIDED
 
 
@@ -29,14 +28,13 @@ class FindTheSniperApp {
 class FindTheSniperCdk(
     scope: Construct,
 ) : Stack(
-    scope, 
+    scope,
     appName,
     StackProps.builder().env(
         Environment.builder().account(System.getenv("AWS_ACCOUNT_ID") ?: "000000000000").build()
     ).build()
 ) {
     init {
-        createDynamoDbTable()
         buildFunction()
     }
 
@@ -61,8 +59,10 @@ class FindTheSniperCdk(
             this, " findthesniper-secrets",
             "arn:aws:secretsmanager:us-west-1:$awsAccountId:secret:findthesniper-secrets-VHHBCq"
         )
-        
+
         secret.grantRead(function.role?.grantPrincipal!!)
+        val table = createDynamoDbTable()
+        table.grantFullAccess(function.role?.grantPrincipal!!)
 
         return function
     }
