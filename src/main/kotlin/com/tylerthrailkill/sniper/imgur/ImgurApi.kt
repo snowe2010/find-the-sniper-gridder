@@ -9,10 +9,13 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import kotlinx.serialization.Serializable
+import mu.KotlinLogging
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import javax.enterprise.context.ApplicationScoped
 import javax.imageio.ImageIO
+
+private val logger = KotlinLogging.logger {}
 
 typealias ImgurUrl = String
 
@@ -59,6 +62,7 @@ data class ImgurData(
 @ApplicationScoped
 class ImgurApi(val secretsResolver: SecretsResolver) {
     suspend fun uploadPhoto(bufferedImage: BufferedImage): ImgurUrl {
+        logger.info { "Uploading photo to imgur" }
         val secrets = secretsResolver.resolveSecrets()
         val response: HttpResponse = HttpClient(CIO) {
             install(JsonFeature) {
@@ -79,8 +83,7 @@ class ImgurApi(val secretsResolver: SecretsResolver) {
             }
         }
         val json = response.readText()
-        println("uploading to imgur")
-        println(json)
+        println("imgur url $json")
         val imgurResponse = Serialization.json.decodeFromString(ImgurResponse.serializer(), json)
         return imgurResponse.data.link
     }

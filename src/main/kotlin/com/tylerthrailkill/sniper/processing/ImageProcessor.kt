@@ -21,6 +21,7 @@ enum class GridSize(val desiredCellSize: Int) {
 @ApplicationScoped
 class ImageProcessor {
     fun renderImage(img: BufferedImage, gridSize: GridSize): BufferedImage {
+        logger.info { "Rendering image grid" }
         val columnWidth = findClosestWholeNumberPixel(img.width, gridSize.desiredCellSize)
         val rowHeight = findClosestWholeNumberPixel(img.height, gridSize.desiredCellSize)
 

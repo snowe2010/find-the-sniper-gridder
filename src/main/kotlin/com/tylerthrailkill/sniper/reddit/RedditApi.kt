@@ -1,6 +1,6 @@
-import com.tylerthrailkill.sniper.reddit.Listing
 import com.tylerthrailkill.sniper.helpers.SecretsResolver
 import com.tylerthrailkill.sniper.helpers.Serialization
+import com.tylerthrailkill.sniper.reddit.Listing
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.auth.*
@@ -37,6 +37,7 @@ class RedditApi(val secretsResolver: SecretsResolver) {
     private val token: String by lazy { authorize() }
 
     private fun authorize(): String {
+        logger.info { "Authorizing reddit client" }
         val secrets = secretsResolver.resolveSecrets()
         return runBlocking {
             val response: HttpResponse = HttpClient(CIO) {
@@ -68,6 +69,7 @@ class RedditApi(val secretsResolver: SecretsResolver) {
     }
 
     suspend fun getLatestPosts(): Listing {
+        logger.info { "Getting latest posts" }
         val response: HttpResponse = HttpClient(CIO) {
             install(JsonFeature) {
                 serializer = Serialization.ktorSerializer
@@ -85,6 +87,7 @@ class RedditApi(val secretsResolver: SecretsResolver) {
     }
 
     suspend fun downloadImage(imageUrl: String): BufferedImage {
+        logger.info { "Downloading image $imageUrl" }
         val bytes = HttpClient(CIO).get<ByteArray>(imageUrl)
         val inputStream: InputStream = ByteArrayInputStream(bytes)
         val bi = ImageIO.read(inputStream)
@@ -124,7 +127,7 @@ class RedditApi(val secretsResolver: SecretsResolver) {
         }
         logger.info { "commentWithNewPhoto headers: ${response.headers}" }
         val json = response.readText()
-        logger.info {"commentWithNewPhoto response: $json"}
+        logger.info { "commentWithNewPhoto response: $json" }
     }
 
 }

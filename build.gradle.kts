@@ -60,14 +60,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
 
     // AWS CDK
-    implementation(awsCdk("apigateway"))
-    implementation(awsCdk("core")) 
-    implementation(awsCdk("s3")) 
-    implementation(awsCdk("lambda")) 
-    implementation(awsCdk("ssm")) 
-    implementation(awsCdk("codedeploy")) 
-    implementation(awsCdk("secretsmanager")) 
-    implementation(awsCdk("dynamodb"))
+    implementation(awsCdk("aws-cdk-lib", "2.8.0"))
+    implementation("software.constructs","constructs", "10.0.22")
 
     // aws sdk
     implementation(awsSdk("secretsmanager"))
@@ -83,7 +77,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api:2.17.0")
     implementation("org.apache.logging.log4j:log4j-core:2.17.0")
     runtimeOnly("org.apache.logging.log4j:log4j-slf4j18-impl:2.17.0")
-    runtimeOnly("com.amazonaws:aws-lambda-java-log4j2:1.5.0")
+    runtimeOnly("com.amazonaws:aws-lambda-java-log4j2:1.5.1")
 }
 
 tasks.quarkusBuild {

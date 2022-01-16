@@ -49,7 +49,7 @@ class FindTheSniperService(
 
                     redditApi.commentWithNewPhoto(post.name, bigImageUrl, mediumImageUrl, smallImageUrl)
                     
-                    dynamo.save(it)
+//                    dynamo.save(it)
                 }
             }
         }
