@@ -2,10 +2,12 @@ plugins {
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.serialization") version "1.6.10"
     kotlin("plugin.allopen") version "1.6.10"
+    kotlin("plugin.noarg") version "1.6.10"
 //    id("io.quarkus")
     id("io.quarkus") version "2.6.2.Final"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     java
+    application
 }
 
 group = "com.tylerthrailkill"
@@ -23,6 +25,13 @@ val quarkusPlatformGroupId: String by project
 val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
 
+fun awsCdk(module: String, version: String? = "1.138.2") = "software.amazon.awscdk:$module:$version"
+fun awsSdk(module: String, version: String? = "2.17.107") = "software.amazon.awssdk:$module:$version"
+fun ktor(module: String? = null, version: String? = "1.6.7") = "io.ktor:$module:$version"
+
+fun quarkus(module: String, version: String? = null) = "io.quarkus:$module${if (version != null) ":$version" else ""}"
+fun quarkiverse(module: String, version: String? = null) = "io.quarkiverse.amazonservices:$module${if (version != null) ":$version" else ""}"
+
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -30,47 +39,57 @@ dependencies {
     // Quarkus
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:quarkus-amazon-services-bom:${quarkusPlatformVersion}"))
-    implementation("io.quarkus:quarkus-amazon-lambda")
-    implementation("io.quarkus:quarkus-kotlin")
-    implementation("io.quarkus:quarkus-arc")
-    implementation("io.quarkus:quarkus-awt")
+    implementation(quarkus("quarkus-amazon-lambda"))
+    implementation(quarkus("quarkus-kotlin"))
+    implementation(quarkus("quarkus-arc"))
+    implementation(quarkus("quarkus-awt"))
+    implementation(quarkiverse("quarkus-amazon-secretsmanager"))
+    implementation(quarkiverse("quarkus-amazon-dynamodb"))
+    
 //    implementation("io.quarkus:quarkus-resteasy")
-    testImplementation("io.quarkus:quarkus-junit5")
+    testImplementation(quarkus("quarkus-junit5"))
     testImplementation("io.rest-assured:rest-assured")
-    implementation("io.quarkiverse.amazonservices:quarkus-amazon-secretsmanager")
 
     // Ktor
-    implementation("io.ktor:ktor:$ktor_version")
-    implementation("io.ktor:ktor-client-core:$ktor_version")
-    implementation("io.ktor:ktor-client-cio:$ktor_version")
-    implementation("io.ktor:ktor-auth:$ktor_version")
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
-    implementation("io.ktor:ktor-client-apache:$ktor_version")
-    implementation("io.ktor:ktor-client-auth:$ktor_version")
-    implementation("io.ktor:ktor-locations:1.6.7")
-    implementation("io.ktor:ktor-server-core:1.6.7")
-    implementation("io.ktor:ktor-client-core-jvm:1.6.7")
-    implementation("io.ktor:ktor-client-serialization:$ktor_version")
+    implementation(ktor("ktor")) 
+    implementation(ktor("ktor-client-core")) 
+    implementation(ktor("ktor-client-cio")) 
+    implementation(ktor("ktor-auth")) 
+    implementation(ktor("ktor-server-netty")) 
+    implementation(ktor("ktor-client-apache")) 
+    implementation(ktor("ktor-client-auth")) 
+    implementation(ktor("ktor-locations"))
+    implementation(ktor("ktor-server-core")) 
+    implementation(ktor("ktor-client-core-jvm")) 
+    implementation(ktor("ktor-client-serialization"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
 
     // AWS CDK
-    implementation("software.amazon.awscdk:apigateway:${cdk_version}")
-    implementation("software.amazon.awscdk:core:${cdk_version}")
-    implementation("software.amazon.awscdk:s3:${cdk_version}")
-    implementation("software.amazon.awscdk:lambda:${cdk_version}")
-    implementation("software.amazon.awscdk:ssm:${cdk_version}")
-    implementation("software.amazon.awscdk:codedeploy:${cdk_version}")
-    implementation("software.amazon.awscdk:dynamodb:${cdk_version}")
+    implementation(awsCdk("apigateway"))
+    implementation(awsCdk("core")) 
+    implementation(awsCdk("s3")) 
+    implementation(awsCdk("lambda")) 
+    implementation(awsCdk("ssm")) 
+    implementation(awsCdk("codedeploy")) 
+    implementation(awsCdk("secretsmanager")) 
+    implementation(awsCdk("dynamodb"))
 
     // aws sdk
-    implementation("software.amazon.awssdk:secretsmanager")
+    implementation(awsSdk("secretsmanager"))
+    implementation(awsSdk("url-connection-client")) 
+    implementation(awsSdk("dynamodb")) 
+    implementation(awsSdk("dynamodb-enhanced"))
+    implementation(awsSdk("netty-nio-client"))
+    implementation(awsSdk("apache-client"))
     implementation("com.amazonaws:aws-java-sdk-secretsmanager:1.12.138")
-    implementation("software.amazon.awssdk:url-connection-client")
-    implementation("software.amazon.awssdk:dynamodb")
-    implementation("software.amazon.awssdk:dynamodb-enhanced")
-    implementation("software.amazon.awssdk:netty-nio-client")
 
     implementation("io.github.microutils:kotlin-logging-jvm:2.1.21")
+
+
+    implementation("org.apache.logging.log4j:log4j-api:2.17.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.17.0")
+    runtimeOnly("org.apache.logging.log4j:log4j-slf4j18-impl:2.17.0")
+    runtimeOnly("com.amazonaws:aws-lambda-java-log4j2:1.5.0")
 }
 
 tasks.quarkusBuild {
@@ -96,13 +115,16 @@ tasks.register<JavaExec>("cdk") {
     classpath = sourceSets.main.get().runtimeClasspath
 }
 
-//task runTwaService(type: JavaExec) {
-//    main = 'com.service.main.TWAService'
-//    classpath = sourceSets.main.runtimeClasspath
-//}
-
 allOpen {
     annotation("javax.ws.rs.Path")
     annotation("javax.enterprise.context.ApplicationScoped")
     annotation("io.quarkus.test.junit.QuarkusTest")
+}
+
+noArg {
+    annotation("software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean")
+}
+
+application {
+    mainClass.set("com.tylerthrailkill.sniper.helpers.FindTheSniperApp")
 }
