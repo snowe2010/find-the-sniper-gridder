@@ -104,14 +104,16 @@ class ImageProcessor {
         g2d.color = Color.WHITE
         g2d.drawImage(img, rowHeaderWidth, columnHeaderHeight, null)
 
+        val finalFont = font.deriveFont(fontWidth)
         0.until(numberOfColumns).forEach {
             val rect = Rectangle(rowHeaderWidth + (it * columnWidth), 0, columnWidth, columnHeaderHeight)
-            drawCenteredString(g2d, "$it", rect, font.deriveFont(fontWidth))
+            drawCenteredString(g2d, "$it", rect, finalFont)
         }
         0.until(numberOfRows).forEach {
             val rect = Rectangle(0, columnHeaderHeight + (it * rowHeight), rowHeaderWidth, rowHeight)
-            drawCenteredString(g2d, "$it", rect, font.deriveFont(fontWidth))
+            drawCenteredString(g2d, "$it", rect, finalFont)
         }
+        drawAxisLabels(g2d, finalFont, rowHeaderWidth, columnHeaderHeight)
         return imgWithHeaders
     }
 
@@ -182,5 +184,12 @@ class ImageProcessor {
 
         return fontWidth to fontHeight
     }
-
+    
+    fun drawAxisLabels(graphics2D: Graphics2D, font: Font, rowHeaderWidth: Int, columnHeaderHeight: Int) {
+        val position = 2/3.0
+        val xRect = Rectangle((rowHeaderWidth * position).toInt(), 0, (rowHeaderWidth * position).toInt(), columnHeaderHeight)
+        drawCenteredString(graphics2D, "x", xRect, font)
+        val yRect = Rectangle(0, (columnHeaderHeight * position).toInt(), rowHeaderWidth, (columnHeaderHeight * position).toInt())
+        drawCenteredString(graphics2D, "y", yRect, font)
+    }
 }

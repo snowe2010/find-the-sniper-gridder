@@ -102,7 +102,7 @@ class RedditApi(val secretsResolver: SecretsResolver) {
     thing_id: fullname of parent thing
     uh / X-Modhash header: a modhash
      */
-    suspend fun commentWithNewPhoto(postId: String, vararg imageUrl: String) {
+    suspend fun commentWithNewPhoto(postId: String, vararg imageUrl: String): Boolean {
         logger.info { "Commenting on $postId with image urls $imageUrl" }
         val response: HttpResponse = HttpClient(CIO) {
             install(JsonFeature) {
@@ -117,9 +117,26 @@ class RedditApi(val secretsResolver: SecretsResolver) {
                 parameter("return_rtjson", true)
                 parameter(
                     "text", """
-                    # Find The Sniper Helper
-                    
-                    - ${imageUrl.joinToString("\n                    - ")}
+                        Hi, I've placed some grids over your image to help commenters indicate where your sniper is:
+
+                        - [Big Grid](${imageUrl[0]})
+                        - [Medium Grid](${imageUrl[1]})
+                        - [Small Grid](${imageUrl[2]})
+
+                        ---
+
+                        Some suggestions:
+
+                        - Use the largest grid reasonable to describe your location
+                        - You can provide hints by using the Big Grid with a wide range, something like (1,1) to (4,5).
+                        - If it's in the center of the image, you probably don't need to bother with coordinates, unless someone asks!
+
+                        The grid uses standard coordinates (x, y) where `x` is the horizontal axis and `y` is the vertical axis. 
+
+
+                        ---
+
+                        ^^Please ^^contact ^^my ^^creator ^^/u/snowe2010 ^^if ^^you ^^find ^^issues ^^or ^^/u/findthesniper-helper ^^does ^^not ^^comment ^^on ^^your ^^post. ^^Also ^^if ^^you ^^have ^^suggestions ^^for ^^improvement. 
                     """.trimIndent()
                 )
                 parameter("thing_id", postId)
@@ -128,6 +145,7 @@ class RedditApi(val secretsResolver: SecretsResolver) {
         logger.info { "commentWithNewPhoto headers: ${response.headers}" }
         val json = response.readText()
         logger.info { "commentWithNewPhoto response: $json" }
+        return !json.contains("errors")
     }
 
 }
