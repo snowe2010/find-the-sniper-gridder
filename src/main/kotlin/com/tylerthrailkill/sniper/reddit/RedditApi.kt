@@ -82,7 +82,7 @@ class RedditApi(val secretsResolver: SecretsResolver) {
         }
         logger.info { "getLatestPosts headers: ${response.headers}" }
         val json = response.readText()
-        logger.info { "Latest Posts: ${json}" }
+        logger.info { "Latest Posts: $json" }
         return Serialization.json.decodeFromString(Listing.serializer(), json)
     }
 
@@ -135,6 +135,8 @@ class RedditApi(val secretsResolver: SecretsResolver) {
 
 
                         ---
+                        
+                        Notes: I do not currently support galleries. It is in the works.
 
                         ^^Please ^^contact ^^my ^^creator ^^/u/snowe2010 ^^if ^^you ^^find ^^issues ^^or ^^/u/findthesniper-helper ^^does ^^not ^^comment ^^on ^^your ^^post. ^^Also ^^if ^^you ^^have ^^suggestions ^^for ^^improvement. 
                     """.trimIndent()

@@ -118,10 +118,11 @@ class ImageProcessor {
     }
 
     fun findClosestWholeNumberPixel(totalPixels: Int, desiredSize: Int): Int {
+        var totalPixels = totalPixels
         var size = desiredSize
         var modifier = 1
         var negative = false
-        while (totalPixels.mod(size) != 0) {
+        while ((totalPixels.rem(size) > (desiredSize/12)) && totalPixels.mod(size) != 0) { // remainder must be within 1/12th the desired size
             size += modifier
             if (negative) {
                 modifier -= 1
@@ -184,12 +185,18 @@ class ImageProcessor {
 
         return fontWidth to fontHeight
     }
-    
+
     fun drawAxisLabels(graphics2D: Graphics2D, font: Font, rowHeaderWidth: Int, columnHeaderHeight: Int) {
-        val position = 2/3.0
-        val xRect = Rectangle((rowHeaderWidth * position).toInt(), 0, (rowHeaderWidth * position).toInt(), columnHeaderHeight)
+        val position = 2 / 3.0
+        val xRect =
+            Rectangle((rowHeaderWidth * position).toInt(), 0, (rowHeaderWidth * position).toInt(), columnHeaderHeight)
         drawCenteredString(graphics2D, "x", xRect, font)
-        val yRect = Rectangle(0, (columnHeaderHeight * position).toInt(), rowHeaderWidth, (columnHeaderHeight * position).toInt())
+        val yRect = Rectangle(
+            0,
+            (columnHeaderHeight * position).toInt(),
+            rowHeaderWidth,
+            (columnHeaderHeight * position).toInt()
+        )
         drawCenteredString(graphics2D, "y", yRect, font)
     }
 }

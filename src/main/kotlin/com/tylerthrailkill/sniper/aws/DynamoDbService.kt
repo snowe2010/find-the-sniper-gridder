@@ -12,6 +12,8 @@ import software.amazon.awssdk.services.dynamodb.model.ScanRequest
 import javax.enterprise.context.ApplicationScoped
 import javax.enterprise.inject.Produces
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -55,7 +57,7 @@ class DynamoDbService(
         val itemMap = mutableMapOf<String, AttributeValue>(
             "id" to AttributeValue.builder().s(data.data.name).build(),
         )
-        setTTL(itemMap, 30.seconds)
+        setTTL(itemMap, 30.days)
 
         logger.info("Persist uuid: ${data.data.name}")
         dynamoDb.putItem(

@@ -33,5 +33,6 @@ data class ChildData(
     @SerialName("post_hint") val postHint: String? = null,
     val name: String, //fullname of post
 //    @SerialName("crosspost_parent_list") val crosspostParentList: List<ChildData> = listOf(),
-//    @SerialName("crosspost_parent") val crosspostParent: String? = null
+//    @SerialName("crosspost_parent") val crosspostParent: String? = null,
+//    @SerialName("is_gallery") val isGallery: Boolean = false,
 )

@@ -2,6 +2,7 @@ import com.tylerthrailkill.sniper.helpers.SecretsResolver
 import com.tylerthrailkill.sniper.helpers.Serialization
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.features.*
 import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
@@ -67,6 +68,10 @@ class ImgurApi(val secretsResolver: SecretsResolver) {
         val response: HttpResponse = HttpClient(CIO) {
             install(JsonFeature) {
                 serializer = Serialization.ktorSerializer
+            }
+
+            install(HttpTimeout) {
+                requestTimeoutMillis = 100000
             }
         }.use { client ->
             val parts: List<PartData> = formData {
