@@ -18,14 +18,11 @@ enum class GridSize(val desiredCellSize: Int) {
     Big(108), Medium(70), Small(40)
 }
 
-fun infiniteAlphabet(): Sequence<String> {
-    val seq = (('a'..'z') + ('A'..'Z')).map { it.toString() }
-
-    var count = 0
-    return generateSequence {
-        count++
-        seq.map { char -> char.repeat(count) }
-    }.flatten()
+/**
+ * https://stackoverflow.com/a/32532049
+ */
+fun infiniteAlphabet(i: Int): String {
+    return if (i < 0) "" else infiniteAlphabet(i / 26 - 1) + (65 + i % 26).toChar()
 }
 
 @ApplicationScoped
@@ -117,16 +114,16 @@ class ImageProcessor {
 
         val finalFont = font.deriveFont(fontWidth)
 
-        infiniteAlphabet().take(numberOfColumns).forEachIndexed { index, it ->
+        (0 until numberOfColumns).forEach { index ->
             val topHeaderRow = Rectangle(rowHeaderWidth + (index * columnWidth), 0, columnWidth, columnHeaderHeight)
-            drawCenteredString(g2d, it, topHeaderRow, finalFont)
+            drawCenteredString(g2d, infiniteAlphabet(index), topHeaderRow, finalFont)
             val bottomHeaderRow = Rectangle(
                 rowHeaderWidth + (index * columnWidth),
                 img.height + columnHeaderHeight,
                 columnWidth,
                 columnHeaderHeight
             )
-            drawCenteredString(g2d, it, bottomHeaderRow, finalFont)
+            drawCenteredString(g2d, infiniteAlphabet(index), bottomHeaderRow, finalFont)
         }
         0.until(numberOfRows).forEach {
             val leftHeaderColumn = Rectangle(0, columnHeaderHeight + (it * rowHeight), rowHeaderWidth, rowHeight)
@@ -201,8 +198,8 @@ class ImageProcessor {
         val text = "10"
         val r2d: Rectangle2D = fontGraphics.getFontMetrics(font).getStringBounds(text, fontGraphics)
 
-        val fontWidth = (font.size2D * (columnWidth / 3) / r2d.width).toFloat()
-        val fontHeight = (font.size2D * (columnWidth / 3) / r2d.height).toFloat()
+        val fontWidth = (font.size2D * (columnWidth / 2) / r2d.width).toFloat()
+        val fontHeight = (font.size2D * (columnWidth / 2) / r2d.height).toFloat()
 
         return fontWidth to fontHeight
     }
