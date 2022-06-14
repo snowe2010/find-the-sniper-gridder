@@ -18,6 +18,16 @@ enum class GridSize(val desiredCellSize: Int) {
     Big(108), Medium(70), Small(40)
 }
 
+fun infiniteAlphabet(): Sequence<String> {
+    val seq = (('a'..'z') + ('A'..'Z')).map { it.toString() }
+
+    var count = 0
+    return generateSequence {
+        count++
+        seq.map { char -> char.repeat(count) }
+    }.flatten()
+}
+
 @ApplicationScoped
 class ImageProcessor {
     fun renderImage(img: BufferedImage, gridSize: GridSize): BufferedImage {
@@ -51,7 +61,7 @@ class ImageProcessor {
         val g2d: Graphics2D = img.createGraphics()
         g2d.background = Color.WHITE
         g2d.color = Color.BLACK
-        val bs = BasicStroke(1f)
+        val bs = BasicStroke(2f)
         g2d.stroke = bs
 
         0.until(numberOfColumns).forEach {
@@ -98,20 +108,32 @@ class ImageProcessor {
         val columnHeaderHeight = fontHeight.toInt() + 10
         val rowHeaderWidth = fontWidth.toInt() + 10
 
-        val imgWithHeaders = BufferedImage(img.width + rowHeaderWidth, img.height + columnHeaderHeight, img.type)
+        val imgWithHeaders =
+            BufferedImage(img.width + (rowHeaderWidth * 2), img.height + (columnHeaderHeight * 2), img.type)
 
         val g2d: Graphics2D = imgWithHeaders.createGraphics()
         g2d.color = Color.WHITE
         g2d.drawImage(img, rowHeaderWidth, columnHeaderHeight, null)
 
         val finalFont = font.deriveFont(fontWidth)
-        0.until(numberOfColumns).forEach {
-            val rect = Rectangle(rowHeaderWidth + (it * columnWidth), 0, columnWidth, columnHeaderHeight)
-            drawCenteredString(g2d, "$it", rect, finalFont)
+
+        infiniteAlphabet().take(numberOfColumns).forEachIndexed { index, it ->
+            val topHeaderRow = Rectangle(rowHeaderWidth + (index * columnWidth), 0, columnWidth, columnHeaderHeight)
+            drawCenteredString(g2d, it, topHeaderRow, finalFont)
+            val bottomHeaderRow = Rectangle(
+                rowHeaderWidth + (index * columnWidth),
+                img.height + columnHeaderHeight,
+                columnWidth,
+                columnHeaderHeight
+            )
+            drawCenteredString(g2d, it, bottomHeaderRow, finalFont)
         }
         0.until(numberOfRows).forEach {
-            val rect = Rectangle(0, columnHeaderHeight + (it * rowHeight), rowHeaderWidth, rowHeight)
-            drawCenteredString(g2d, "$it", rect, finalFont)
+            val leftHeaderColumn = Rectangle(0, columnHeaderHeight + (it * rowHeight), rowHeaderWidth, rowHeight)
+            drawCenteredString(g2d, "$it", leftHeaderColumn, finalFont)
+            val rightHeaderColumn =
+                Rectangle(img.width + rowHeaderWidth, columnHeaderHeight + (it * rowHeight), rowHeaderWidth, rowHeight)
+            drawCenteredString(g2d, "$it", rightHeaderColumn, finalFont)
         }
         drawAxisLabels(g2d, finalFont, rowHeaderWidth, columnHeaderHeight)
         return imgWithHeaders
@@ -122,7 +144,7 @@ class ImageProcessor {
         var size = desiredSize
         var modifier = 1
         var negative = false
-        while ((totalPixels.rem(size) > (desiredSize/12)) && totalPixels.mod(size) != 0) { // remainder must be within 1/12th the desired size
+        while ((totalPixels.rem(size) > (desiredSize / 12)) && totalPixels.mod(size) != 0) { // remainder must be within 1/12th the desired size
             size += modifier
             if (negative) {
                 modifier -= 1

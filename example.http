@@ -1,0 +1,5 @@
+### Trigger api
+POST http://localhost:8080
+Content-Type: application/json
+
+{}

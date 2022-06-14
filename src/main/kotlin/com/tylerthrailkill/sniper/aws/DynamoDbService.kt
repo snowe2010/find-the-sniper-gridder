@@ -13,7 +13,6 @@ import javax.enterprise.context.ApplicationScoped
 import javax.enterprise.inject.Produces
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
@@ -22,28 +21,11 @@ private val logger = KotlinLogging.logger {}
 
 
 class AwsServiceClientProducer {
-
-//    @ApplicationScoped
-//    @Produces
-//    fun nettyClient(): SdkAsyncHttpClient = NettyNioAsyncHttpClient.builder()
-//        .connectionMaxIdleTime(5.seconds.toJavaDuration()) // https://github.com/aws/aws-sdk-java-v2/issues/1122
-//        .build()
-
     @ApplicationScoped
     @Produces
     fun nettyClient(): SdkAsyncHttpClient = NettyNioAsyncHttpClient.builder()
         .connectionMaxIdleTime(5.seconds.toJavaDuration()) // https://github.com/aws/aws-sdk-java-v2/issues/1122
         .build()
-
-
-//    @Produces
-//    @ApplicationScoped
-//    fun dynamoDbEnhanced(): DynamoDbEnhancedClient {
-//        val dynamoDb =
-//            DynamoDbClient.builder().httpClient(ApacheHttpClient.create()).region(Region.US_WEST_1).build()
-//        return DynamoDbEnhancedClient.builder().dynamoDb(dynamoDb).build()
-//    }
-
 }
 
 @ApplicationScoped

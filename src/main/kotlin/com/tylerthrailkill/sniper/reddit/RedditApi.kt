@@ -13,6 +13,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.InputStream
@@ -21,7 +22,6 @@ import javax.imageio.ImageIO
 
 private val logger = KotlinLogging.logger {}
 
-const val subreddit: String = "snowe2010"
 const val userAgent = "web:com.tylerthrailkill.findthesniper-helper:0.0.1 (by /u/snowe2010)"
 
 @Serializable
@@ -33,7 +33,10 @@ data class RedditAuthorizationResponse(
 )
 
 @ApplicationScoped
-class RedditApi(val secretsResolver: SecretsResolver) {
+class RedditApi(
+    val secretsResolver: SecretsResolver,
+    @ConfigProperty(name = "subreddit") val subreddit: String,
+) {
     private val token: String by lazy { authorize() }
 
     private fun authorize(): String {
@@ -75,7 +78,7 @@ class RedditApi(val secretsResolver: SecretsResolver) {
                 serializer = Serialization.ktorSerializer
             }
         }.use { client ->
-            client.get("https://oauth.reddit.com/user/$subreddit/new.json?count=20") {
+            client.get("https://oauth.reddit.com/$subreddit/new.json?count=20") {
                 this.header("User-Agent", userAgent)
                 this.header("Authorization", "Bearer $token")
             }

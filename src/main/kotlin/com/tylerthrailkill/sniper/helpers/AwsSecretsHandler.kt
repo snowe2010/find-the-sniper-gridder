@@ -9,9 +9,6 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueReques
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Singleton
 
-//import javax.ws.rs.Produces
-
-
 @Serializable
 data class Secrets(
     var imgurClientId: String = "secretWasNotSet",
