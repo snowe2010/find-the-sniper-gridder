@@ -9,6 +9,7 @@ import io.quarkus.runtime.configuration.ProfileManager
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import mu.KotlinLogging
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import javax.enterprise.context.ApplicationScoped
 
 
@@ -20,6 +21,7 @@ class FindTheSniperService(
     val imgurApi: ImgurApi,
     val imageProcessor: ImageProcessor,
     val dynamo: DynamoDbService,
+    @ConfigProperty(name = "make-real-comment") val makeRealComment: Boolean,
 ) {
 
     fun commentOnNewPosts() {
@@ -43,27 +45,27 @@ class FindTheSniperService(
                             val mediumImage = imageProcessor.renderImage(originalImage, GridSize.Medium)
                             val smallImage = imageProcessor.renderImage(originalImage, GridSize.Small)
 
-                            when (profile) {
-                                "dev" -> DebugImage.postImage(bigImage, mediumImage, smallImage)
-                                else -> {
-                                    println("running prod")
-                                    val bigImageUrl = imgurApi.uploadPhoto(bigImage)
-                                    val mediumImageUrl = imgurApi.uploadPhoto(mediumImage)
-                                    val smallImageUrl = imgurApi.uploadPhoto(smallImage)
+                            if (profile == "dev") {
+                                DebugImage.postImage(bigImage, mediumImage, smallImage)
+                            }
+                            if (makeRealComment) {
+                                println("running prod")
+                                val bigImageUrl = imgurApi.uploadPhoto(bigImage)
+                                val mediumImageUrl = imgurApi.uploadPhoto(mediumImage)
+                                val smallImageUrl = imgurApi.uploadPhoto(smallImage)
 
-                                    val success =
-                                        redditApi.commentWithNewPhoto(
-                                            post.name,
-                                            bigImageUrl,
-                                            mediumImageUrl,
-                                            smallImageUrl
-                                        )
-                                    if (success) {
-                                        logger.info { "saving ${post.name} in dynamodb" }
-                                        dynamo.save(it)
-                                    } else {
-                                        logger.info { "NOT SAVING ${post.name} in dynamodb" }
-                                    }
+                                val success =
+                                    redditApi.commentWithNewPhoto(
+                                        post.name,
+                                        bigImageUrl,
+                                        mediumImageUrl,
+                                        smallImageUrl
+                                    )
+                                if (success) {
+                                    logger.info { "saving ${post.name} in dynamodb" }
+                                    dynamo.save(it)
+                                } else {
+                                    logger.info { "NOT SAVING ${post.name} in dynamodb" }
                                 }
                             }
                         } else {
